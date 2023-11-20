@@ -23,7 +23,7 @@ for path in $paths # this loop will be used to save ALL the IDs (first words of 
         then grep ">" $path | awk '{print $1}' >> IDs
     fi
 done
-echo "There are $(sort IDs |uniq -c | wc -l) unique IDs in the totality of fasta and fa files in $1\n" #we print the number of unique IDs in the file with ALL IDs
+echo -e "There are $(sort IDs |uniq -c | wc -l) unique IDs in the totality of fasta and fa files in $1\n" #we print the number of unique IDs in the file with ALL IDs
 
 
 
