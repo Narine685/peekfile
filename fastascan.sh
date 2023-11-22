@@ -1,13 +1,11 @@
 # determining the folder and number of lines to use
-if [[ -n $1 ]]; # with this condition, if a folder argument is given... 
-then
+if [[ -n $1 ]]; then # with this condition, if a folder argument is given... 
   folder=$1 #...then that folder will be used for the commands...
 else
   folder=. #...otherwise, the current one will be taken as a default
 fi
 
-if [[ -n $2 ]]; # with this condition, if a second argument is given... 
-then
+if [[ -n $2 ]]; then # with this condition, if a second argument is given... 
   lines=$2 #...then that number of lines will be used for the commands...
 else
   lines=0 #...otherwise, 0 will be taken as a default
@@ -26,8 +24,7 @@ echo -e "Calculating the number of files obtained:\nThere are $(echo "$paths" | 
 #calculating the number of unique IDs in total 
 echo -e "Calculating the number of unique IDs in the totality of fasta and fa files found:" # echo to indicate the step in which the script is
 for path in $paths # this loop will be used to save ALL the IDs (first words of the entries heads) in a file 
-    do if [[ $(grep ">" $path|wc -l) -gt 0 ]] #this step is used to make sure that the files used are text, not binary
-        then 
+    do if [[ $(grep ">" $path|wc -l) -gt 0 ]]; then #this step is used to make sure that the files used are text, not binary 
             grep ">" $path | awk '{print $1}' >> IDs #IDs is the file
     fi
 done
@@ -35,19 +32,16 @@ echo "There are $(sort IDs |uniq -c | wc -l) unique IDs in the totality of fasta
 
 #obtaining a summary of each file
 for path in $paths
-    do if [[ $(grep ">" $path|wc -l) -gt 0 ]] # if the file is not binary
-    then
+    # print which file we are giving information about
+    do echo -e "\n\n=== $path ===" 
         
-        # print which file we are giving information about
-        echo -e "\n\n=== $path ===" 
-        
-        #check if it is a symbolic link
-        if [[ -h $path ]] 
-        then 
-            echo "This file is a symlink."
-        else
-            echo "This file is not a symlink."
-        fi
+    #check if it is a symbolic link
+    if [[ -h $path ]]; then 
+        echo "This file is a symlink."
+    else
+        echo "This file is not a symlink."
+    fi
+    if [[ $(grep ">" $path|wc -l) -gt 0 ]]; then # if the file is not binary
         
         #obtaining the number of sequences inside the file
         echo "There are $(grep -c ">" $path) sequences inside." 
@@ -56,8 +50,7 @@ for path in $paths
         total_residus=$(awk '!/>/ && length($0)> 0{gsub(/[-"\n"" "]/, "", $0)} !/>/ && length($0)> 0{len+=length($0)}END{print len}' $path)
         
         #knowing if the sequences are made of aminoacids or nucleotides
-        if [[ $(cat $path | grep -v ">" | grep -i -c [RNDQEHILKMFPSWYV]) >0 ]] # if we find symbols that pertain to aminoacids...
-        then
+        if [[ $(cat $path | grep -v ">" | grep -i -c [RDQEHILKMFPSWYV]) >0 ]]; then # if we find symbols that pertain to aminoacids...
             type=aminoacids # ... then we classify the type of the file as containing aminoacids...
         else
             type=nucleotides #... and if not, we classify it as containing nucleotides
@@ -67,18 +60,18 @@ for path in $paths
         echo "This file contains sequences of $type, and there are in total $total_residus $type between all sequences" 
         
         #echo the portion of the file asked by the $lines variable
-        if [[ $lines -eq 0 ]] 
-        then
+        if [[ $lines -eq 0 ]]; then
             continue
-        elif [[ $(cat $path | wc -l) -le $(( $lines * 2 )) ]] 
-        then
+        elif [[ $(cat $path | wc -l) -le $(( $lines * 2 )) ]]; then
             cat $path
         else  
             head -n $lines $path
             echo ...
             tail -n $lines $path
         fi
+    elif [[ ! -s $path ]]; then 
+        echo -e "This file is empty\nThere are 0 sequences inside\nThere are no nucleotides or aminoacids"
     else #echo that this file is binary
-    	echo -e "\n\n=== $path ===\nThe file $path is binary and therefore can not be processed with this code"
+    	echo -e "The file $path is binary and therefore can not be processed with this code"
     fi
 done 
