@@ -69,7 +69,7 @@ for path in $paths
             echo ...
             tail -n $lines $path
         fi
-    elif [[ ! -s $path ]]; then 
+    elif [[ ! -s $path ]]; then #in the case the file is empty
         echo -e "This file is empty\nThere are 0 sequences inside\nThere are no nucleotides or aminoacids"
     else #echo that this file is binary
     	echo -e "The file $path is binary and therefore can not be processed with this code"
